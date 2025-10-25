@@ -24,20 +24,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-&-w%mm8drgx+e*jj3^6i4wopd_w_(v48xd#u=-&%r*v#x!l7b%'
-)
+SECRET_KEY = 'django-insecure-&-w%mm8drgx+e*jj3^6i4wopd_w_(v48xd#u=-&%r*v#x!l7b%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+DEBUG = False
 
-ALLOWED_HOSTS = []
-# Kode ini khusus untuk Render
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+ALLOWED_HOSTS = ['hidroponik.pythonanywhere.com']
 
-
-ALLOWED_HOSTS.append('hydro-app-1.onrender.com')
 
 # Application definition
 
@@ -56,13 +49,15 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # --- POSISI WHITENOISE DIPINDAHKAN KE SINI ---
+    'whitenoise.middleware.WhiteNoiseMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    # Hapus WhiteNoiseMiddleware dari sini
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -90,8 +85,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # --- GANTI ENGINE MENJADI MYSQL ---
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': 'hidroponik$default', # Ganti username jika perlu
+        'USER': 'hidroponik',         # Ganti username jika perlu
+        'PASSWORD': 'kebunku456',     # Ganti dengan password MySQL Anda
+        'HOST': 'hidroponik.mysql.pythonanywhere-services.com', # Ganti host jika perlu
+        'PORT': '3306',
+         # Tambahkan opsi ini untuk koneksi MySQL di PythonAnywhere
+        'OPTIONS': {
+            'sql_mode': 'traditional',
+        }
     }
 }
 
@@ -148,7 +152,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # config/settings.py
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = '/home/hidroponik/manajem_hidroponik/media'
 
 # --- PENGATURAN CELERY ---
 CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
