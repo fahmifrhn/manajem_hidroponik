@@ -1,0 +1,16 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SQLite database (jika ada)
+db.sqlite3
+
+# Virtual environment
+venv/
+
+# Static files collected by collectstatic
+staticfiles/
+
+# Media files (jika ada)
+media/
