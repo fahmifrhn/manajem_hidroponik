@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from celery.schedules import crontab
+# from celery.schedules import crontab
 import os
 import dj_database_url
 
@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'hidroponik',
     'crispy_forms',
     'crispy_bootstrap5',
-    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -155,14 +154,14 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = '/home/hidroponik/manajem_hidroponik/media'
 
 # --- PENGATURAN CELERY ---
-CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+#CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+#CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 # Pengaturan Jadwal (Celery Beat)
-CELERY_BEAT_SCHEDULE = {
+#CELERY_BEAT_SCHEDULE = {
     'kirim-pengingat-setiap-pagi': {
         'task': 'hidroponik.tasks.cek_dan_kirim_pengingat',
         'schedule': crontab(hour=8, minute=0), # crontab sekarang sudah dikenali
