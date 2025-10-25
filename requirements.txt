@@ -19,6 +19,7 @@ et_xmlfile==2.0.0
 gunicorn==23.0.0
 idna==3.10
 kombu==5.5.4
+mysqlclient==2.2.7
 numpy==2.3.3
 openpyxl==3.1.5
 packaging==25.0
