@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HydroApp</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 250px;
+            background-color: #ffffff;
+            padding: 1.5rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            transition: transform 0.3s ease-in-out;
+            z-index: 1030;
+        }
+        .main-content {
+            padding: 1.5rem;
+            padding-top: 5rem; /* Beri ruang untuk topbar */
+        }
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background-color: #0d6efd;
+            color: white;
+            display: none; /* Sembunyi di desktop */
+            align-items: center;
+            padding: 0 1rem;
+            z-index: 1020;
+        }
+        .topbar-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .sidebar-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0d6efd;
+            margin-bottom: 2rem;
+        }
+        .sidebar-header .fa-leaf {
+            color: #198754;
+        }
+        .nav-link {
+            font-size: 1.1rem; color: #495057; padding: 0.75rem 1rem;
+            border-radius: 0.5rem; margin-bottom: 0.5rem; display: flex;
+            align-items: center; line-height: 1.4; white-space: normal;
+        }
+        .nav-link:hover { background-color: #e9ecef; color: #0d6efd; }
+        .nav-link.active { background-color: #0d6efd; color: white; font-weight: 500; }
+        .nav-link .fas { width: 25px; margin-right: 10px; }
+
+        /* Media Query untuk layar kecil (di bawah 992px) */
+        @media (max-width: 991.98px) {
+            .sidebar {
+                transform: translateX(-100%); /* Sembunyikan sidebar ke kiri */
+            }
+            .sidebar.show {
+                transform: translateX(0); /* Tampilkan sidebar */
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .topbar {
+                display: flex; /* Tampilkan topbar di HP */
+            }
+        }
+        /* Media Query untuk layar besar (di atas 992px) */
+        @media (min-width: 992px) {
+            .main-content {
+                margin-left: 250px;
+                padding-top: 1.5rem;
+            }
+            .topbar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <button class="btn btn-primary me-3" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="topbar-title">HydroApp</div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-leaf"></i> HydroApp
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'manajemen_tanaman' %}active{% endif %}" href="{% url 'manajemen_tanaman' %}">
+                    <i class="fas fa-seedling"></i> Manajemen Tanaman
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'riwayat_panen' %}active{% endif %}" href="{% url 'riwayat_panen' %}">
+                    <i class="fas fa-archive"></i> Riwayat Panen
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'manajemen_pupuk' %}active{% endif %}" href="{% url 'manajemen_pupuk' %}">
+                    <i class="fas fa-flask"></i> Pupuk & Nutrisi
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'manajemen_inventaris' %}active{% endif %}" href="{% url 'manajemen_inventaris' %}">
+                    <i class="fas fa-wrench"></i> Inventaris
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'analisis_statistik' %}active{% endif %}" href="{% url 'analisis_statistik' %}">
+                    <i class="fas fa-chart-bar"></i> Analisis & Statistik
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'analisis_pertumbuhan' %}active{% endif %}" href="{% url 'analisis_pertumbuhan' %}">
+                    <i class="fas fa-chart-line"></i> Analisis Pertumbuhan
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'kalkulator_nutrisi' %}active{% endif %}" href="{% url 'kalkulator_nutrisi' %}">
+                    <i class="fas fa-calculator"></i> Kalkulator Nutrisi
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'pengaturan_notifikasi' %}active{% endif %}" href="{% url 'pengaturan_notifikasi' %}">
+                    <i class="fas fa-bell"></i> Notifikasi
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('show');
+        });
+    </script>
+</body>
+</html>

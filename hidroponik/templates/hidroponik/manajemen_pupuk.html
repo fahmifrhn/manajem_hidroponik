@@ -1,0 +1,55 @@
+{% extends 'hidroponik/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Daftar Pupuk & Nutrisi</h2>
+                <ul class="list-group list-group-flush">
+                    {% for pupuk in semua_pupuk %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">{{ pupuk.nama }}</h5>
+                            <small class="text-muted">{{ pupuk.pabrikan|default_if_none:"" }}</small>
+                            {% if pupuk.deskripsi %}
+                                <p class="mb-0 text-muted fst-italic">{{ pupuk.deskripsi }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <span class="badge bg-primary rounded-pill me-3 fs-6">
+                                {{ pupuk.jumlah|floatformat:"-2" }} {{ pupuk.get_satuan_display }}
+                            </span>
+                            <form action="{% url 'hapus_pupuk' pupuk.pk %}" method="post" class="d-inline" onsubmit="return confirm('Hapus item ini?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted">Belum ada data pupuk atau nutrisi.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Tambah Baru</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary mt-3">SIMPAN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

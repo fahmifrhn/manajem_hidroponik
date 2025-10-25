@@ -1,0 +1,137 @@
+{% extends 'hidroponik/base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Kalkulator Nutrisi AB Mix</h2>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Kalkulator Penyesuaian (Cepat)</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <form id="kalkulatorCepat">
+                    <p class="text-muted">Gunakan ini untuk menambah nutrisi pada larutan yang sudah ada.</p>
+                    <div class="mb-3">
+                        <label for="volumeAir1" class="form-label">Volume Air Tandon (Liter)</label>
+                        <input type="number" class="form-control" id="volumeAir1" step="0.1" required placeholder="Contoh: 100">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="ppmSekarang1" class="form-label">PPM Sekarang</label>
+                            <input type="number" class="form-control" id="ppmSekarang1" placeholder="PPM saat ini">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="targetPPM1" class="form-label">Target PPM</label>
+                            <input type="number" class="form-control" id="targetPPM1" required placeholder="Contoh: 800">
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">HITUNG</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-6">
+                <div class="card bg-light h-100 border-0">
+                    <div class="card-body text-center d-flex align-items-center justify-content-center" id="hasilContainer1">
+                        <div id="placeholderHasil1">
+                            <p class="text-muted">Hasil perhitungan cepat akan muncul di sini.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header">
+        <h5 class="mb-0">Kalkulator Baru (Berdasarkan Rasio Kemasan)</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <form id="kalkulatorRasio">
+                    <p class="text-muted">Gunakan ini untuk membuat larutan baru dari nol sesuai data pupuk Anda.</p>
+                    <div class="mb-3">
+                        <label for="volumeAir2" class="form-label">Volume Air (Liter)</label>
+                        <input type="number" class="form-control" id="volumeAir2" step="0.1" required placeholder="Contoh: 10">
+                    </div>
+                    <div class="mb-3">
+                        <label for="targetPPM2" class="form-label">Target PPM</label>
+                        <input type="number" class="form-control" id="targetPPM2" required placeholder="Contoh: 1200">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="rasioStandar2" class="form-label">Rasio (ml/L)</label>
+                            <input type="number" class="form-control" id="rasioStandar2" value="5" step="0.1">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="hasilPPM2" class="form-label">Hasil PPM</label>
+                            <input type="number" class="form-control" id="hasilPPM2" value="1000">
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-secondary">HITUNG</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-6">
+                <div class="card bg-light h-100 border-0">
+                    <div class="card-body text-center d-flex align-items-center justify-content-center" id="hasilContainer2">
+                         <div id="placeholderHasil2">
+                            <p class="text-muted">Hasil perhitungan rasio akan muncul di sini.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- Logika untuk Kalkulator 1 (Cepat) ---
+    const form1 = document.getElementById('kalkulatorCepat');
+    const hasilContainer1 = document.getElementById('hasilContainer1');
+    form1.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const volumeAir = parseFloat(document.getElementById('volumeAir1').value);
+        const ppmSekarang = parseFloat(document.getElementById('ppmSekarang1').value) || 0;
+        const targetPPM = parseFloat(document.getElementById('targetPPM1').value);
+
+        const kekuranganPPM = targetPPM - ppmSekarang;
+        let hasilHTML = '';
+        if (kekuranganPPM <= 0) {
+            hasilHTML = `<div class="card bg-info text-white border-0 w-100"><div class="card-body"><h5 class="card-title">PPM Sudah Cukup</h5></div></div>`;
+        } else {
+            const pekatanAB = kekuranganPPM * 5 / 1000 * volumeAir;
+            hasilHTML = `<div class="card bg-success text-white border-0 w-100"><div class="card-body"><h5 class="card-title">Tambahkan Pekatan</h5><p class="display-6 fw-bold mb-0">${pekatanAB.toFixed(2)} ml <span class="fs-4">/ A & B</span></p></div></div>`;
+        }
+        hasilContainer1.innerHTML = hasilHTML;
+    });
+
+    // --- Logika untuk Kalkulator 2 (Rasio) ---
+    const form2 = document.getElementById('kalkulatorRasio');
+    const hasilContainer2 = document.getElementById('hasilContainer2');
+    form2.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const volumeAir = parseFloat(document.getElementById('volumeAir2').value);
+        const targetPPM = parseFloat(document.getElementById('targetPPM2').value);
+        const rasioStandar = parseFloat(document.getElementById('rasioStandar2').value);
+        const hasilPPM = parseFloat(document.getElementById('hasilPPM2').value);
+
+        let hasilHTML = '';
+        if (hasilPPM > 0) {
+            const totalPekatan = (rasioStandar / hasilPPM) * targetPPM * volumeAir;
+            const pekatanA = totalPekatan / 2;
+            hasilHTML = `<div class="card bg-success text-white border-0 w-100"><div class="card-body"><h5 class="card-title">Kebutuhan Pekatan</h5><p class="display-6 fw-bold mb-0">${pekatanA.toFixed(2)} ml <span class="fs-4">/ A & B</span></p></div></div>`;
+        } else {
+            hasilHTML = `<div class="card bg-danger text-white border-0 w-100"><div class="card-body"><h5 class="card-title">Error</h5><p>Hasil PPM tidak boleh 0.</p></div></div>`;
+        }
+        hasilContainer2.innerHTML = hasilHTML;
+    });
+});
+</script>
+{% endblock %}

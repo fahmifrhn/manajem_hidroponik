@@ -1,0 +1,44 @@
+{% extends 'hidroponik/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm border-0" style="border-radius: 12px;">
+            <div class="card-body p-4">
+                <h2 class="card-title mb-4">Tambah Tanaman Baru</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <fieldset>
+                        <legend class="fs-5 fw-bold border-bottom pb-2 mb-3">Informasi Dasar</legend>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">{{ form.jenis_tanaman|as_crispy_field }}</div>
+                            <div class="col-md-4 mb-3">{{ form.varietas|as_crispy_field }}</div>
+                            <div class="col-md-4 mb-3">{{ form.tanggal_tanam|as_crispy_field }}</div>
+                            <div class="col-md-6 mb-3">{{ form.media_tanam|as_crispy_field }}</div>
+                            <div class="col-md-6 mb-3">{{ form.posisi|as_crispy_field }}</div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="mt-4">
+                        <legend class="fs-5 fw-bold border-bottom pb-2 mb-3">Kebutuhan Nutrisi (Opsional)</legend>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">{{ form.target_ppm|as_crispy_field }}</div>
+                            <div class="col-md-4 mb-3">{{ form.target_ph|as_crispy_field }}</div>
+                            <div class="col-md-4 mb-3">{{ form.target_suhu|as_crispy_field }}</div>
+                        </div>
+                    </fieldset>
+
+                    <div class="mt-4">
+                        {{ form.deskripsi|as_crispy_field }}
+                    </div>
+
+                    <div class="text-end mt-4">
+                        <button type="submit" class="btn btn-primary px-4">SIMPAN TANAMAN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

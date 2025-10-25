@@ -1,0 +1,53 @@
+{% extends 'hidroponik/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Riwayat Panen</h2>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">Jenis Tanaman</th>
+                    <th scope="col">Tanggal Panen</th>
+                    <th scope="col">Jumlah Hasil</th>
+                    <th scope="col">Durasi Tanam</th>
+                    <th scope="col"></th> </tr>
+            </thead>
+            <tbody>
+                {% for tanaman in semua_tanaman_panen %}
+                <tr>
+                    <td>
+                        <strong>{{ tanaman.get_jenis_tanaman_display }}</strong>
+                        <small class="d-block text-muted">{{ tanaman.varietas }}</small>
+                    </td>
+                    <td>{{ tanaman.tanggal_panen_estimasi|date:"d M Y" }}</td>
+                    <td>
+                        {% if tanaman.jumlah_hasil_angka %}
+                            {{ tanaman.jumlah_hasil_angka }} {{ tanaman.get_satuan_hasil_display }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>{{ tanaman.durasi_tanam.days }} hari</td>
+                    <td class="text-end">
+                        <form action="{% url 'hapus_tanaman' tanaman.pk %}" method="post" onsubmit="return confirm('Anda yakin ingin menghapus permanen riwayat panen ini?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">Belum ada riwayat panen.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

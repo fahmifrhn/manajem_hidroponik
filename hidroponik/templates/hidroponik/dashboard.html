@@ -1,0 +1,127 @@
+{% extends 'hidroponik/base.html' %}
+
+{% block content %}
+<style>
+    /* Custom styles for the dashboard */
+    .stat-card {
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card h3 {
+        font-size: 1.2rem;
+        margin: 0;
+    }
+    .stat-card .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+    }
+    .stat-card .stat-icon {
+        position: absolute;
+        bottom: 15px;
+        right: 20px;
+        font-size: 3rem;
+        opacity: 0.3;
+    }
+    .bg-blue-gradient {
+        background: linear-gradient(45deg, #0d6efd, #4dabf7);
+    }
+    .bg-green-gradient {
+        background: linear-gradient(45deg, #198754, #40c057);
+    }
+    .card-custom {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="mb-4">
+        <h2 id="sapaanWaktu"></h2>
+        <p class="text-muted">Berikut adalah ringkasan kebun hidroponik Anda.</p>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="stat-card bg-blue-gradient">
+                        <h3>Tanaman Aktif</h3>
+                        <div class="stat-number">{{ jumlah_tanaman_aktif }}</div>
+                        <i class="fas fa-seedling stat-icon"></i>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="stat-card bg-green-gradient">
+                        <h3>Siap Panen</h3>
+                        <div class="stat-number">{{ jumlah_siap_panen }}</div>
+                        <i class="fas fa-check-circle stat-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-custom">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Akses Cepat</h5>
+                    <a href="{% url 'tambah_tanaman' %}" class="btn btn-primary me-2">
+                        <i class="fas fa-plus-circle"></i> TAMBAH TANAMAN
+                    </a>
+                    <a href="{% url 'riwayat_panen' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-history"></i> RIWAYAT PANEN
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card card-custom">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Aktivitas Terbaru</h5>
+                    <ul class="list-group list-group-flush">
+                        {% for aktivitas in aktivitas_terbaru %}
+                        <li class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><strong>{{ aktivitas.tanaman }}</strong></h6>
+                                <small class="text-muted">{{ aktivitas.waktu_pencatatan|timesince }} lalu</small>
+                            </div>
+                            <small class="text-muted">
+                                pH: <strong>{{ aktivitas.ph }}</strong> | 
+                                PPM: <strong>{{ aktivitas.nutrisi_ppm }}</strong> | 
+                                Suhu: <strong>{{ aktivitas.suhu }}°C</strong>
+                            </small>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center text-muted">Belum ada aktivitas.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const sapaanElement = document.getElementById('sapaanWaktu');
+        const jam = new Date().getHours(); // Ambil jam dari browser pengguna
+        let sapaan;
+
+        if (jam >= 5 && jam < 12) {
+            sapaan = "Selamat Pagi!";
+        } else if (jam >= 12 && jam < 15) {
+            sapaan = "Selamat Siang!";
+        } else if (jam >= 15 && jam < 18) {
+            sapaan = "Selamat Sore!";
+        } else {
+            sapaan = "Selamat Malam!";
+        }
+
+        sapaanElement.textContent = sapaan;
+    });
+</script>
+
+{% endblock %}

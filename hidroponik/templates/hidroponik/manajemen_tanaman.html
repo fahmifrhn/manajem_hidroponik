@@ -1,0 +1,95 @@
+{% extends 'hidroponik/base.html' %}
+
+{% block content %}
+<style>
+    .plant-card {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        border: none;
+        transition: transform .2s;
+        position: relative; /* Diperlukan agar tombol hapus bisa diposisikan */
+        padding-bottom: 4rem; /* Beri ruang untuk tombol hapus */
+    }
+    .plant-card:hover {
+        transform: translateY(-5px);
+    }
+    .plant-card .card-body {
+        padding: 1.5rem;
+    }
+    .plant-card .plant-name {
+        font-weight: 600;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .plant-card .plant-variety {
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+    .plant-card .plant-date {
+        font-size: 0.9rem;
+        color: #495057;
+    }
+    .plant-card .badge {
+        font-size: 0.8rem;
+        padding: 0.4em 0.7em;
+    }
+    .delete-btn {
+        position: absolute;
+        bottom: 1rem;
+        right: 1.5rem;
+        background: none;
+        border: none;
+        color: #dc3545;
+        font-size: 1.2rem;
+        cursor: pointer;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Manajemen Tanaman</h2>
+    <div>
+        <a href="{% url 'export_csv' %}" class="btn btn-outline-primary">
+            <i class="fas fa-download me-2"></i>EXPORT KE CSV
+        </a>
+        <a href="{% url 'tambah_tanaman' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>TAMBAH TANAMAN
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    {% for tanaman in semua_tanaman %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card plant-card h-100">
+            <a href="{% url 'detail_tanaman' tanaman.pk %}" class="text-decoration-none text-dark">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="plant-name">{{ tanaman.get_jenis_tanaman_display }}</h4>
+                        <span class="badge rounded-pill 
+                            {% if tanaman.status == 'Bibit' %} bg-primary
+                            {% elif tanaman.status == 'Vegetatif' %} bg-success
+                            {% elif tanaman.status == 'Berbunga' %} bg-warning text-dark
+                            {% elif tanaman.status == 'Panen' %} bg-danger
+                            {% else %} bg-secondary
+                            {% endif %}">
+                            {{ tanaman.status }}
+                        </span>
+                    </div>
+                    <p class="plant-variety">{{ tanaman.varietas }}</p>
+                    <p class="plant-date">Tgl. Tanam: {{ tanaman.tanggal_tanam|date:"d/m/Y" }}</p>
+                </div>
+            </a>
+            
+            <form action="{% url 'hapus_tanaman' tanaman.pk %}" method="post" onsubmit="return confirm('Anda yakin ingin menghapus tanaman ini?');">
+                {% csrf_token %}
+                <button type="submit" class="delete-btn"><i class="fas fa-trash-alt"></i></button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p class="text-center text-muted">Belum ada tanaman yang aktif. Silakan tambahkan.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

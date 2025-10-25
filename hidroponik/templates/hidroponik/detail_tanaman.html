@@ -1,0 +1,210 @@
+{% extends 'hidroponik/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2>{{ tanaman.get_jenis_tanaman_display }} <span class="text-muted fs-4">- {{ tanaman.varietas }}</span></h2>
+        <p class="mb-2 text-muted">Tanggal Tanam: {{ tanaman.tanggal_tanam|date:"d F Y" }}</p>
+        
+        <div class="mb-2">
+            <span class="badge bg-light text-dark border me-2">
+                <i class="fas fa-bullseye text-primary"></i> 
+                Target pH: <strong>{{ tanaman.target_ph|default:"-" }}</strong>
+            </span>
+            <span class="badge bg-light text-dark border me-2">
+                <i class="fas fa-water text-info"></i> 
+                Target PPM: <strong>{{ tanaman.target_ppm|default:"-" }}</strong>
+            </span>
+            <span class="badge bg-light text-dark border">
+                <i class="fas fa-thermometer-half text-danger"></i> 
+                Target Suhu: <strong>{{ tanaman.target_suhu|default:"-" }}°C</strong>
+            </span>
+        </div>
+
+        {% if tanaman.deskripsi %}
+        <div>
+            <small class="text-muted"><strong>Catatan:</strong> {{ tanaman.deskripsi }}</small>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-md-4 text-md-end">
+        {% if tanaman.status != 'Panen' %}
+        <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#panenModal">
+            <i class="fas fa-check-circle me-2"></i> Panen Sekarang
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header"><b>Status Pertumbuhan</b></div>
+    <div class="card-body">
+        <div class="progress" style="height: 30px;">
+            {% for status_val, status_text in tanaman.STATUS_CHOICES %}
+            <div class="progress-bar {% if tanaman.status == status_val %}bg-success{% else %}bg-secondary{% endif %}" role="progressbar" style="width: 25%;">{{ status_text }}</div>
+            {% endfor %}
+        </div>
+        <form action="{% url 'update_status_tanaman' tanaman.pk %}" method="post" class="mt-3">
+            {% csrf_token %}
+            <label for="status">Ubah Status ke:</label>
+            <select name="status" id="status" class="form-select w-auto d-inline-block">
+                {% for status_val, status_text in tanaman.STATUS_CHOICES %}
+                <option value="{{ status_val }}" {% if tanaman.status == status_val %}disabled{% endif %}>{{ status_text }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm">Update</button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12"> 
+        <div class="card shadow-sm mb-4">
+            <div class="card-header"><b>Grafik Sensor</b></div>
+            <div class="card-body">
+                <canvas id="sensorChart"></canvas>
+            </div>
+        </div> 
+        <div class="card shadow-sm mb-4">
+            <div class="card-header"><b>Input Manual</b></div>
+            <div class="card-body">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    {{ sensor_form|crispy }}
+                    <button type="submit" name="submit_sensor" class="btn btn-primary mt-2">Simpan Data</button>
+                </form>
+            </div>
+        </div>
+        <div class="card shadow-sm mb-4">
+            <div class="card-header"><b>Log Aktivitas</b></div>
+            <div class="card-body">
+                <form id="activityLogForm" action="" method="post">
+                    {% csrf_token %}
+                    {{ activity_form.jenis_aktivitas|as_crispy_field }}
+                    
+                    <div id="nutrisiFields" style="display: none;">
+                        {{ activity_form.pupuk_yang_digunakan|as_crispy_field }}
+                        {{ activity_form.jumlah_yang_digunakan|as_crispy_field }}
+                    </div>
+                    
+                    {{ activity_form.catatan|as_crispy_field }}
+                    <button type="submit" name="submit_activity" class="btn btn-primary mt-2">Simpan Log</button>
+                </form>
+                <hr>
+                <ul class="list-group list-group-flush">
+                    {% for log in activity_log|slice:":5" %}
+                    <li class="list-group-item">
+                        <b>{{ log.jenis_aktivitas }}</b> - <small>{{ log.tanggal|date:"d M Y" }}</small>
+                        <p class="mb-0">{{ log.catatan }}</p>
+                    </li>
+                    {% empty %}
+                    <p>Belum ada aktivitas.</p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        </div> 
+    </div>
+
+<div class="modal fade" id="panenModal" tabindex="-1" aria-labelledby="panenModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="panenModalLabel">Catat Hasil Panen</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'panen_tanaman' tanaman.pk %}" method="post">
+          {% csrf_token %}
+          <div class="modal-body">
+            <p>Masukkan jumlah hasil panen dan catatan untuk <strong>{{ tanaman.get_jenis_tanaman_display }}</strong>.</p>
+            {{ panen_form|crispy }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-success">Simpan Hasil Panen</button>
+          </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('sensorChart').getContext('2d');
+        
+        fetch("{% url 'sensor_chart_data' tanaman.pk %}")
+            .then(response => response.json())
+            .then(data => {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [
+                            {
+                                label: 'pH Air',
+                                data: data.ph_data,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1,
+                                fill: false
+                            },
+                            {
+                                label: 'Suhu (°C)',
+                                data: data.suhu_data,
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1,
+                                fill: false
+                            },
+                            {
+                                label: 'Nutrisi (PPM)',
+                                data: data.nutrisi_data,
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                                fill: false
+                            },
+                            {
+                                label: 'Ketinggian Air (cm)',
+                                data: data.ketinggian_air_data,
+                                borderColor: 'rgba(153, 102, 255, 1)',
+                                borderWidth: 1,
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: false
+                            }
+                        },
+                        responsive: true
+                    }
+                });
+            });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ... (script untuk grafik biarkan saja) ...
+
+        // --- JAVASCRIPT UNTUK FORM LOG AKTIVITAS ---
+        const activitySelect = document.querySelector('#activityLogForm select[name="jenis_aktivitas"]');
+        const nutrisiFieldsDiv = document.getElementById('nutrisiFields');
+
+        // Fungsi untuk menampilkan/menyembunyikan field
+        function toggleNutrisiFields() {
+            if (activitySelect.value === 'Tambah Nutrisi') {
+                nutrisiFieldsDiv.style.display = 'block';
+            } else {
+                nutrisiFieldsDiv.style.display = 'none';
+            }
+        }
+
+        // Panggil fungsi saat halaman dimuat
+        toggleNutrisiFields();
+        // Panggil fungsi setiap kali dropdown berubah
+        activitySelect.addEventListener('change', toggleNutrisiFields);
+    });
+</script>
+{% endblock %}
