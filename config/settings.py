@@ -162,8 +162,8 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 # Pengaturan Jadwal (Celery Beat)
 #CELERY_BEAT_SCHEDULE = {
-    'kirim-pengingat-setiap-pagi': {
-        'task': 'hidroponik.tasks.cek_dan_kirim_pengingat',
-        'schedule': crontab(hour=8, minute=0), # crontab sekarang sudah dikenali
-    },
-}
+#    'kirim-pengingat-setiap-pagi': {
+#        'task': 'hidroponik.tasks.cek_dan_kirim_pengingat',
+#        'schedule': crontab(hour=8, minute=0), # crontab sekarang sudah dikenali
+#    },
+#}
